@@ -5,7 +5,7 @@ pipeline {
     stage('Checkout') {
       steps {
         // Checkout your repository code
-        git 'https://github.com/nishants15/liquibase.git'
+        git url: 'https://github.com/nishants15/liquibase.git', credentialsId: 'GH-credentials'
       }
     }
     
