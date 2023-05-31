@@ -1,0 +1,19 @@
+<databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+                   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                   xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+                                       http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.10.xsd">
+
+    <changeSet author="Nishant" id="CONTEXT_CLASSIFIER_SCHEMA">
+        <createSchema schemaName="intent_demo"/>
+    </changeSet>
+
+    <changeSet author="Nishant" id="CREATE_TABLE">
+        <createTable tableName="Demo_table" schemaName="intent_demo">
+            <column name="id" type="INT" autoIncrement="true">
+                <constraints primaryKey="true"/>
+            </column>
+            <column name="name" type="VARCHAR(255)"/>
+            <column name="age" type="INT"/>
+        </createTable>
+    </changeSet>
+</databaseChangeLog>
