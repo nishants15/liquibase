@@ -4,8 +4,7 @@ pipeline {
     stages {
         stage('Checkout') {
             steps {
-                git branch: 'develop
-                ', credentialsId: 'GH-credentials', url: 'https://github.com/nishants15/liquibase.git'
+                git branch: 'develop', credentialsId: 'GH-credentials', url: 'https://github.com/nishants15/liquibase.git'
             }
         }
 
