@@ -4,7 +4,8 @@ pipeline {
     stages {
         stage('Checkout') {
             steps {
-                git branch: 'master', credentialsId: 'GH-credentials', url: 'https://github.com/nishants15/liquibase.git'
+                git branch: 'develop
+                ', credentialsId: 'GH-credentials', url: 'https://github.com/nishants15/liquibase.git'
             }
         }
 
@@ -46,8 +47,8 @@ pipeline {
                         --classpath=/opt/liquibase/snowflake-jdbc.jar \
                         --driver=net.snowflake.client.jdbc.SnowflakeDriver \
                         --url=jdbc:snowflake://kx23846.ap-southeast-1.snowflakecomputing.com/?db=DEVOPS_DB&schema=DEVOPS_SCHEMA \
-                        --username=nishant \
-                        --password=Nishants1503 \
+                        --username=Mark \
+                        --password=Mark56789* \
                         --changeLogFile=/functions-liquibase/master.xml \
                         update
                 '''
