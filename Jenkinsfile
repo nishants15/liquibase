@@ -1,18 +1,18 @@
 pipeline {
     agent {
         docker {
-            image 'maven:3.8.3'
-            user 'root'
+            image 'maven:3.8.3-openjdk-11'
+            args '-v /var/run/docker.sock:/var/run/docker.sock'
         }
     }
-
+    
     stages {
         stage('Checkout') {
             steps {
                 git branch: 'develop', credentialsId: 'GH-credentials', url: 'https://github.com/nishants15/liquibase.git'
             }
         }
-
+        
         stage('Install Liquibase') {
             steps {
                 sh '''
@@ -35,8 +35,11 @@ pipeline {
                     # Download the Snowflake JDBC driver
                     curl -L $SNOWFLAKE_JDBC_URL -o /opt/liquibase/snowflake-jdbc.jar
 
+                    # Create a symlink for the Liquibase binary
+                    ln -sf /opt/liquibase/liquibase /usr/local/bin/liquibase
+
                     # Verify the installation
-                    /opt/liquibase/liquibase --version
+                    liquibase --version
                 '''
             }
         }
@@ -44,7 +47,7 @@ pipeline {
         stage('Run Liquibase') {
             steps {
                 sh '''
-                    /opt/liquibase/liquibase \
+                    liquibase \
                         --classpath=/opt/liquibase/snowflake-jdbc.jar \
                         --driver=net.snowflake.client.jdbc.SnowflakeDriver \
                         --url=jdbc:snowflake://kx23846.ap-southeast-1.snowflakecomputing.com/?db=DEVOPS_DB&schema=DEVOPS_SCHEMA \
@@ -57,4 +60,5 @@ pipeline {
         }
     }
 }
+
 
