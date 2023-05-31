@@ -35,6 +35,9 @@ pipeline {
                     # Download the Snowflake JDBC driver
                     curl -L $SNOWFLAKE_JDBC_URL -o /var/lib/jenkins/workspace/liquiiiii_develop/liquibase/snowflake-jdbc.jar
 
+                    # Create the directory for the Liquibase tool
+                    mkdir -p /var/lib/jenkins/tools/liquibase
+
                     # Create a symlink for the Liquibase binary
                     ln -sf /var/lib/jenkins/workspace/liquiiiii_develop/liquibase/liquibase /var/lib/jenkins/tools/liquibase/liquibase
 
@@ -60,6 +63,7 @@ pipeline {
         }
     }
 }
+
 
 
 
