@@ -36,13 +36,13 @@ pipeline {
                     curl -L $SNOWFLAKE_JDBC_URL -o /var/lib/jenkins/workspace/liquiiiii_develop/liquibase/snowflake-jdbc.jar
 
                     # Create the directory for the Liquibase tool
-                    mkdir -p /var/lib/jenkins/tools/liquibase
+                    mkdir -p /var/lib/jenkins/liquibase
 
                     # Create a symlink for the Liquibase binary
-                    ln -sf /var/lib/jenkins/workspace/liquiiiii_develop/liquibase/liquibase /var/lib/jenkins/tools/liquibase/liquibase
+                    ln -sf /var/lib/jenkins/workspace/liquiiiii_develop/liquibase/liquibase /var/lib/jenkins/liquibase/liquibase
 
                     # Verify the installation
-                    /var/lib/jenkins/tools/liquibase/liquibase --version
+                    /var/lib/jenkins/liquibase/liquibase --version
                 '''
             }
         }
@@ -50,7 +50,7 @@ pipeline {
         stage('Run Liquibase') {
             steps {
                 sh '''
-                    /var/lib/jenkins/tools/liquibase/liquibase \
+                    /var/lib/jenkins/liquibase/liquibase \
                         --classpath=/var/lib/jenkins/workspace/liquiiiii_develop/liquibase/snowflake-jdbc.jar \
                         --driver=net.snowflake.client.jdbc.SnowflakeDriver \
                         --url=jdbc:snowflake://kx23846.ap-southeast-1.snowflakecomputing.com/?db=DEVOPS_DB&schema=DEVOPS_SCHEMA \
@@ -63,6 +63,7 @@ pipeline {
         }
     }
 }
+
 
 
 
