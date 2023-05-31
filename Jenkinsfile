@@ -20,19 +20,19 @@ pipeline {
                     SNOWFLAKE_JDBC_URL=https://repo1.maven.org/maven2/net/snowflake/snowflake-jdbc/${SNOWFLAKE_JDBC_VERSION}/snowflake-jdbc-${SNOWFLAKE_JDBC_VERSION}.jar
 
                     # Create a directory for Liquibase and Snowflake JDBC driver
-                    mkdir -p /opt/liquibase
-                    chown -R $USER:$USER /opt/liquibase
+                    sudo mkdir -p /opt/liquibase
+                    sudo chown -R $USER:$USER /opt/liquibase
 
                     # Download and extract Liquibase
                     curl -L $LIQUIBASE_URL -o /tmp/liquibase.zip
-                    unzip -o /tmp/liquibase.zip -d /opt/liquibase 
-                    rm /tmp/liquibase.zip
+                    sudo unzip -o /tmp/liquibase.zip -d /opt/liquibase 
+                    sudo rm /tmp/liquibase.zip
 
                     # Download the Snowflake JDBC driver
-                    curl -L $SNOWFLAKE_JDBC_URL -o /opt/liquibase/snowflake-jdbc.jar
+                    sudo curl -L $SNOWFLAKE_JDBC_URL -o /opt/liquibase/snowflake-jdbc.jar
 
                     # Create a symlink for the Liquibase binary
-                    ln -sf /opt/liquibase/liquibase /usr/local/bin/liquibase
+                    sudo ln -sf /opt/liquibase/liquibase /usr/local/bin/liquibase
 
                     # Verify the installation
                     liquibase --version
