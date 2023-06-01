@@ -1,11 +1,15 @@
 pipeline {
     agent {
-        docker {
-            image 'liquibase/liquibase:4.4.2'
-        }
+        docker { image 'liquibase/liquibase:4.9.0' }
     }
     
     stages {
+        stage('Checkout') {
+            steps {
+                git branch: 'develop', credentialsId: 'GH-credentials', url: 'https://github.com/nishants15/liquibase.git'
+            }
+        }
+        
         stage('Install Liquibase') {
             steps {
                 sh '''
@@ -15,12 +19,6 @@ pipeline {
                     ln -sf ${PWD}/liquibase /usr/local/bin/liquibase
                     liquibase --version
                 '''
-            }
-        }
-        
-        stage('Checkout') {
-            steps {
-                git branch: 'develop', credentialsId: 'GH-credentials', url: 'https://github.com/nishants15/liquibase.git'
             }
         }
         
