@@ -16,6 +16,9 @@ pipeline {
                     curl -L https://github.com/liquibase/liquibase/releases/download/v4.4.2/liquibase-4.4.2.zip -o liquibase-4.4.2.zip
                     unzip -o liquibase-4.4.2.zip -d liquibase_tmp
                     rm liquibase-4.4.2.zip
+                    rm -rf liquibase/examples
+                    rm -rf liquibase/lib
+                    rm -rf liquibase/licenses
                     mkdir -p liquibase
                     mv liquibase_tmp/* liquibase/
                     rm -r liquibase_tmp
