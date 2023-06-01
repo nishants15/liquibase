@@ -14,10 +14,12 @@ pipeline {
             steps {
                 sh '''
                     curl -L https://github.com/liquibase/liquibase/releases/download/v4.4.2/liquibase-4.4.2.zip -o liquibase-4.4.2.zip
-                    unzip -o liquibase-4.4.2.zip
+                    unzip -o liquibase-4.4.2.zip -d liquibase_tmp
                     rm liquibase-4.4.2.zip
-                    rm -rf liquibase
-                    ln -sf ${PWD}/liquibase /usr/local/bin/liquibase
+                    mkdir -p liquibase
+                    mv liquibase_tmp/* liquibase/
+                    rm -r liquibase_tmp
+                    ln -sf ${PWD}/liquibase/liquibase /usr/local/bin/liquibase
                     liquibase --version
                 '''
             }
@@ -56,3 +58,4 @@ pipeline {
         }
     }
 }
+
