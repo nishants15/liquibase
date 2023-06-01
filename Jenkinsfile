@@ -14,7 +14,7 @@ pipeline {
             steps {
                 sh '''
                     curl -L https://github.com/liquibase/liquibase/releases/download/v4.4.2/liquibase-4.4.2.zip -o liquibase-4.4.2.zip
-                    unzip liquibase-4.4.2.zip
+                    unzip -o liquibase-4.4.2.zip
                     rm liquibase-4.4.2.zip
                     ln -sf ${PWD}/liquibase /usr/local/bin/liquibase
                     liquibase --version
@@ -25,7 +25,7 @@ pipeline {
         stage('Run Liquibase') {
             steps {
                 sh '''
-                    LIQUIBASE_VERSION=4.12.0
+                    LIQUIBASE_VERSION=4.19.0
                     SNOWFLAKE_JDBC_VERSION=3.15.1
                     LIQUIBASE_URL=https://github.com/liquibase/liquibase/releases/download/v${LIQUIBASE_VERSION}/liquibase-${LIQUIBASE_VERSION}.zip
                     SNOWFLAKE_JDBC_URL=https://repo1.maven.org/maven2/net/snowflake/snowflake-jdbc/${SNOWFLAKE_JDBC_VERSION}/snowflake-jdbc-${SNOWFLAKE_JDBC_VERSION}.jar
@@ -50,6 +50,7 @@ pipeline {
                         --password=Mark56789* \
                         --changeLogFile=/functions-liquibase/master.xml \
                         update
+
                 '''
             }
         }
