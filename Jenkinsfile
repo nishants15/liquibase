@@ -1,9 +1,14 @@
+// Pipeline Initialization
 pipeline {
-    agent {
-        docker { image 'liquibase/liquibase:4.19.0' }
-    }
-    
+    agent any
+
     stages {
+        stage('Initialization') {
+            steps {
+                echo 'Pipeline initialized'
+            }
+        }
+
         stage('Checkout') {
             steps {
                 git branch: 'develop', credentialsId: 'GH-credentials', url: 'https://github.com/nishants15/liquibase.git'
@@ -13,45 +18,41 @@ pipeline {
         stage('Install Liquibase') {
             steps {
                 sh '''
-                    curl -L https://github.com/liquibase/liquibase/releases/download/v4.4.2/liquibase-4.4.2.zip -o liquibase-4.4.2.zip
-                    unzip -o liquibase-4.4.2.zip -d liquibase_tmp
-                    rm liquibase-4.4.2.zip
-                    rm -rf liquibase/examples
-                    rm -rf liquibase/lib
-                    rm -rf liquibase/licenses
-                    mkdir -p liquibase
-                    mv liquibase_tmp/* liquibase/
-                    rm -r liquibase_tmp
-                    ln -sf ${PWD}/liquibase/liquibase /usr/local/bin/liquibase
+                    # Define variables for Liquibase and Snowflake JDBC driver versions
+                    LIQUIBASE_VERSION=4.5.0
+                    SNOWFLAKE_JDBC_VERSION=3.15.1
+
+                    # Define variables for the download URLs
+                    LIQUIBASE_URL=https://github.com/liquibase/liquibase/releases/download/v${LIQUIBASE_VERSION}/liquibase-${LIQUIBASE_VERSION}.zip
+                    SNOWFLAKE_JDBC_URL=https://repo1.maven.org/maven2/net/snowflake/snowflake-jdbc/${SNOWFLAKE_JDBC_VERSION}/snowflake-jdbc-${SNOWFLAKE_JDBC_VERSION}.jar
+
+                    # Create a directory for Liquibase and Snowflake JDBC driver
+                    sudo mkdir -p /opt/liquibase
+
+                    # Download and extract Liquibase
+                    curl -L $LIQUIBASE_URL -o /tmp/liquibase.zip
+                    sudo unzip -o /tmp/liquibase.zip -d /opt/liquibase 
+                    sudo rm /tmp/liquibase.zip
+
+                    # Download the Snowflake JDBC driver
+                    sudo curl -L $SNOWFLAKE_JDBC_URL -o /opt/liquibase/snowflake-jdbc.jar
+
+                    # Create a symlink for the Liquibase binary
+                    sudo ln -sf /opt/liquibase/liquibase /usr/local/bin/liquibase
+
+                    # Verify the installation
                     liquibase --version
                 '''
             }
         }
-        
+
         stage('Run Liquibase') {
             steps {
                 sh '''
-                    LIQUIBASE_VERSION=4.19.0
-                    SNOWFLAKE_JDBC_VERSION=3.15.1
-                    LIQUIBASE_URL=https://github.com/liquibase/liquibase/releases/download/v${LIQUIBASE_VERSION}/liquibase-${LIQUIBASE_VERSION}.zip
-                    SNOWFLAKE_JDBC_URL=https://repo1.maven.org/maven2/net/snowflake/snowflake-jdbc/${SNOWFLAKE_JDBC_VERSION}/snowflake-jdbc-${SNOWFLAKE_JDBC_VERSION}.jar
-
-                    mkdir -p /var/lib/jenkins/workspace/liquiiiii_develop/liquibase
-
-                    curl -L $LIQUIBASE_URL -o /var/lib/jenkins/workspace/liquiiiii_develop/liquibase/liquibase-${LIQUIBASE_VERSION}.zip
-                    unzip -o /var/lib/jenkins/workspace/liquiiiii_develop/liquibase/liquibase-${LIQUIBASE_VERSION}.zip -d /var/lib/jenkins/workspace/liquiiiii_develop/liquibase
-                    rm /var/lib/jenkins/workspace/liquiiiii_develop/liquibase/liquibase-${LIQUIBASE_VERSION}.zip
-
-                    curl -L $SNOWFLAKE_JDBC_URL -o /var/lib/jenkins/workspace/liquiiiii_develop/liquibase/snowflake-jdbc.jar
-
-                    mkdir -p /var/lib/jenkins/liquibase
-
-                    ln -sf /var/lib/jenkins/workspace/liquiiiii_develop/liquibase/liquibase /var/lib/jenkins/liquibase/liquibase
-
-                    /var/lib/jenkins/liquibase/liquibase \
-                        --classpath=/var/lib/jenkins/workspace/liquiiiii_develop/liquibase/snowflake-jdbc.jar \
+                    liquibase \
+                        --classpath=/opt/liquibase/snowflake-jdbc.jar \
                         --driver=net.snowflake.client.jdbc.SnowflakeDriver \
-                        --url=jdbc:snowflake://kx23846.ap-southeast-1.snowflakecomputing.com/?db=DEVOPS_DB&schema=DEVOPS_SCHEMA \
+                        --url=jdbc:snowflake://bcb55215.us-east-1.snowflakecomputing.com/?db=DEVOPS_DB&schema=DEVOPS_SCHEMA \
                         --username=Mark \
                         --password=Mark56789* \
                         --changeLogFile=/functions-liquibase/master.xml \
@@ -61,4 +62,6 @@ pipeline {
         }
     }
 }
+
+
 
