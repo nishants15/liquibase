@@ -16,6 +16,7 @@ pipeline {
                     curl -L https://github.com/liquibase/liquibase/releases/download/v4.4.2/liquibase-4.4.2.zip -o liquibase-4.4.2.zip
                     unzip -o liquibase-4.4.2.zip
                     rm liquibase-4.4.2.zip
+                    rm -rf liquibase
                     ln -sf ${PWD}/liquibase /usr/local/bin/liquibase
                     liquibase --version
                 '''
@@ -50,7 +51,6 @@ pipeline {
                         --password=Mark56789* \
                         --changeLogFile=/functions-liquibase/master.xml \
                         update
-
                 '''
             }
         }
