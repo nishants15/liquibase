@@ -17,14 +17,31 @@ pipeline {
 
         stage('Install Liquibase') {
             steps {
-                withEnv([
-                    "LIQUIBASE_VERSION=${LIQUIBASE_VERSION}",
-                    "LIQUIBASE_URL=https://github.com/liquibase/liquibase/releases/download/v${LIQUIBASE_VERSION}/liquibase-${LIQUIBASE_VERSION}.zip"
-                ]) {
-                    sh '''
-                        curl -L -o liquibase-${LIQUIBASE_VERSION}.zip ${LIQUIBASE_URL}
-                        unzip -n liquibase-${LIQUIBASE_VERSION}.zip
-                    '''
+                script {
+                    // Define variables for Liquibase and Snowflake JDBC driver versions
+                    def LIQUIBASE_VERSION = "4.12.0"
+                    def SNOWFLAKE_JDBC_VERSION = "3.15.1"
+
+                    // Define variables for the download URLs
+                    def LIQUIBASE_URL = "https://github.com/liquibase/liquibase/releases/download/v${LIQUIBASE_VERSION}/liquibase-${LIQUIBASE_VERSION}.zip"
+                    def SNOWFLAKE_JDBC_URL = "https://repo1.maven.org/maven2/net/snowflake/snowflake-jdbc/${SNOWFLAKE_JDBC_VERSION}/snowflake-jdbc-${SNOWFLAKE_JDBC_VERSION}.jar"
+
+                    // Create a directory for Liquibase and Snowflake JDBC driver
+                    sh 'sudo mkdir -p /opt/liquibase'
+
+                    // Download and extract Liquibase
+                    sh "curl -L ${LIQUIBASE_URL} -o /tmp/liquibase.zip"
+                    sh 'sudo unzip -o /tmp/liquibase.zip -d /opt/liquibase'
+                    sh 'sudo rm /tmp/liquibase.zip'
+
+                    // Download the Snowflake JDBC driver
+                    sh "sudo curl -L ${SNOWFLAKE_JDBC_URL} -o /opt/liquibase/snowflake-jdbc.jar"
+
+                    // Create a symlink for the Liquibase binary
+                    sh 'sudo ln -sf /opt/liquibase/liquibase /usr/local/bin/liquibase'
+
+                    // Verify the installation
+                    sh 'liquibase --version'
                 }
             }
         }
