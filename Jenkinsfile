@@ -9,16 +9,6 @@ pipeline {
             }
         }
 
-        environment {
-            LIQUIBASE_VERSION = "4.5"
-            SNOWFLAKE_ACCOUNT = "bcb55215.us-east-1.snowflakecomputing.com"
-            SNOWFLAKE_USER = "Mark"
-            SNOWFLAKE_PASSWORD = "Mark56789*"
-            SNOWFLAKE_JDBC_URL = "jdbc:snowflake://${SNOWFLAKE_ACCOUNT}/?db=DEVOPS_DB&schema=DEVOPS_SCHEMA"
-            SNOWFLAKE_CHANGELOG_FILE = "/functions-liquibase/master.xml"
-            LIQUIBASE_CLASSPATH = "/opt/liquibase/snowflake-jdbc.jar"
-        }
-
         stage('Checkout') {
             steps {
                 git branch: 'develop', credentialsId: 'GH-credentials', url: 'https://github.com/nishants15/liquibase.git'
@@ -34,6 +24,16 @@ pipeline {
         }
 
         stage('Run Liquibase') {
+            environment {
+                LIQUIBASE_VERSION = "4.5"
+                SNOWFLAKE_ACCOUNT = "bcb55215.us-east-1.snowflakecomputing.com"
+                SNOWFLAKE_USER = "Mark"
+                SNOWFLAKE_PASSWORD = "Mark56789*"
+                SNOWFLAKE_JDBC_URL = "jdbc:snowflake://${SNOWFLAKE_ACCOUNT}/?db=DEVOPS_DB&schema=DEVOPS_SCHEMA"
+                SNOWFLAKE_CHANGELOG_FILE = "/functions-liquibase/master.xml"
+                LIQUIBASE_CLASSPATH = "/opt/liquibase/snowflake-jdbc.jar"
+            }
+
             steps {
                 sh """
                     ./liquibase --driver=net.snowflake.client.jdbc.SnowflakeDriver \
