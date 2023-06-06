@@ -16,16 +16,16 @@ pipeline {
         }
 
         stage('Install Liquibase') {
-            environment {
-                LIQUIBASE_VERSION = "4.12.0"
-                LIQUIBASE_URL = "https://github.com/liquibase/liquibase/releases/download/v${LIQUIBASE_VERSION}/liquibase-${LIQUIBASE_VERSION}.zip"
-            }
             steps {
-                sh """
-                    curl -L -o liquibase-${LIQUIBASE_VERSION}.zip ${LIQUIBASE_URL}
-                    unzip liquibase-${LIQUIBASE_VERSION}.zip
-                    chmod +x liquibase
-                """
+                withEnv([
+                    "LIQUIBASE_VERSION=${LIQUIBASE_VERSION}",
+                    "LIQUIBASE_URL=https://github.com/liquibase/liquibase/releases/download/v${LIQUIBASE_VERSION}/liquibase-${LIQUIBASE_VERSION}.zip"
+                ]) {
+                    sh '''
+                        curl -L -o liquibase-${LIQUIBASE_VERSION}.zip ${LIQUIBASE_URL}
+                        unzip -n liquibase-${LIQUIBASE_VERSION}.zip
+                    '''
+                }
             }
         }
 
