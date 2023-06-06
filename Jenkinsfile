@@ -25,7 +25,7 @@ pipeline {
 
         stage('Run Liquibase') {
             environment {
-                LIQUIBASE_VERSION = "4.5"
+                LIQUIBASE_VERSION = "4.3.5"
                 SNOWFLAKE_ACCOUNT = "bcb55215.us-east-1.snowflakecomputing.com"
                 SNOWFLAKE_USER = "Mark"
                 SNOWFLAKE_PASSWORD = "Mark56789*"
