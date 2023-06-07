@@ -46,26 +46,20 @@ pipeline {
             }
         }
 
-        stage('Run Liquibase') {
-            environment {
-                SNOWFLAKE_ACCOUNT = "bcb55215.us-east-1.snowflakecomputing.com"
-                SNOWFLAKE_USER = "Mark"
-                SNOWFLAKE_PASSWORD = "Mark56789*"
-                SNOWFLAKE_JDBC_DRIVER = "/path/to/snowflake-jdbc-${SNOWFLAKE_JDBC_VERSION}.jar"
-                SNOWFLAKE_CHANGELOG_FILE = "functions-liquibase/master.xml"
-            }
-            
+       stage('Run Liquibase') {
             steps {
-                sh """
-                    ./liquibase --driver=com.snowflake.client.jdbc.SnowflakeDriver \
-                                --classpath=${SNOWFLAKE_JDBC_DRIVER} \
-                                --changeLogFile=${SNOWFLAKE_CHANGELOG_FILE} \
-                                --url=jdbc:snowflake://${SNOWFLAKE_ACCOUNT} \
-                                --username=${SNOWFLAKE_USER} \
-                                --password=${SNOWFLAKE_PASSWORD} \
-                                update
-                """
+                sh '''
+                    SNOWFLAKE_ACCOUNT="kx23846.ap-southeast-1.snowflakecomputing.com"
+                    liquibase \
+                        --classpath=/opt/liquibase/snowflake-jdbc.jar \
+                        --driver=net.snowflake.client.jdbc.SnowflakeDriver \
+                        --url=jdbc:snowflake://$SNOWFLAKE_ACCOUNT/?db=DEVOPS_DB&schema=DEVOPS_SCHEMA \
+                        --username=mark \
+                        --password=Mark56789* \
+                        --changeLogFile=/db/aiml/master.xml \
+                    update                  
+                '''
             }
         }
-    }
-}
+
+

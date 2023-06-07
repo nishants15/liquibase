@@ -2,9 +2,9 @@
                    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
                    xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
                                        http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.10.xsd">
-    <changeSet author="Nishant" id="create_database_DEMO">
+    <changeSet author="Nishant" id="create_database_devops_db">
         <sql>
-            CREATE DATABASE IF NOT EXISTS DEMO;
+            CREATE DATABASE IF NOT EXISTS devops_db;
         </sql>
     </changeSet>
 </databaseChangeLog>
