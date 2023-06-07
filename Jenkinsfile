@@ -55,7 +55,7 @@ pipeline {
                         --driver=net.snowflake.client.jdbc.SnowflakeDriver \
                         --url=jdbc:snowflake://$SNOWFLAKE_ACCOUNT/?db=DEVOPS_DB&schema=DEVOPS_SCHEMA \
                         --username=mark \
-                        --password=Mark6789* \
+                        --password='Mark6789*' \
                         --changeLogFile=/db/aiml/master.xml \
                     update                  
                 '''
