@@ -46,25 +46,31 @@ pipeline {
             }
         }
 
-       stage('Run Liquibase') {
+        stage('Run Liquibase') {
             steps {
-                sh '''
-                    SNOWFLAKE_ACCOUNT="kx23846.ap-southeast-1.snowflakecomputing.com"
-                    liquibase \
-                        --classpath=/opt/liquibase/snowflake-jdbc.jar \
-                        --driver=net.snowflake.client.jdbc.SnowflakeDriver \
-                        --url=jdbc:snowflake://$SNOWFLAKE_ACCOUNT/?db=DEVOPS_DB&schema=DEVOPS_SCHEMA \
-                        --username=mark \
-                        --password='Mark6789*' \
-                        --changeLogFile=/db/aiml/master.xml \
-                    update                  
-                '''
+                script {
+                    withEnv([
+                        "SNOWFLAKE_ACCOUNT=kx23846.ap-southeast-1.snowflakecomputing.com",
+                        "USERNAME=mark",
+                        "PASSWORD=Mark6789*"
+                    ]) { 
+                        sh '''
+                            liquibase \
+                                --classpath=/opt/liquibase/snowflake-jdbc.jar \
+                                --driver=net.snowflake.client.jdbc.SnowflakeDriver \
+                                --url=jdbc:snowflake://$SNOWFLAKE_ACCOUNT/?db=DEVOPS_DB&schema=DEVOPS_SCHEMA \
+                                --username=$USERNAME \
+                                --password=$PASSWORD \
+                                --changeLogFile=/db/aiml/master.xml \
+                                update
+                        '''
+                    }
+                }
             }
         }
-    }
-        post {
-            always {
-                cleanWs()
+            post {
+                always {
+                    cleanWs()
+                }
             }
         }
-    }
