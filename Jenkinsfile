@@ -52,7 +52,7 @@ pipeline {
                     withEnv([
                         "SNOWFLAKE_ACCOUNT=kx23846.ap-southeast-1.snowflakecomputing.com",
                         "USERNAME=mark",
-                        "PASSWORD=Mark6789*"
+                        "PASSWORD=Mark56789*"
                     ]) { 
                         sh '''
                             liquibase \
@@ -68,9 +68,9 @@ pipeline {
                 }
             }
         }
-            post {
-                always {
-                    cleanWs()
-                }
+        post {
+            always {
+                cleanWs()
             }
         }
+    }
