@@ -5,14 +5,11 @@
   xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
                       http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.10.xsd">
 
-  <!-- <include file="datawarehouse/datawarehouse.xml" /> -->
-  <!-- <include file="database/database.xml" />  -->
-  <!-- <include file="schema/schema.xml" /> -->
-  <include file="table/table.xml" />
+  <!-- Include the changeset for creating the "demo" database -->
+  <include file="database/database.xml" />
+
+  <!-- Include other changesets as needed -->
   <!-- <include file="function/function.xml" /> -->
   <!-- <include file="stage/stage.xml" /> -->
-
-  <!-- Include the following line to create the "demo" database -->
-  <include file="database/database.xml" />
 
 </databaseChangeLog>

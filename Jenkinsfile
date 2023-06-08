@@ -25,7 +25,7 @@ pipeline {
                     
                     # Run Liquibase commands
                     cd functions-liquibase
-                    liquibase --changeLogFile=master.xml --url="jdbc:snowflake://${SNOWFLAKE_ACCOUNT}/?db=${DATABASE_NAME}" --username=${USERNAME} --password=${PASSWORD} update
+                    liquibase --changeLogFile=functions-liquibase/master.xml --url="jdbc:snowflake://${SNOWFLAKE_ACCOUNT}/?db=${DATABASE_NAME}" --username=${USERNAME} --password=${PASSWORD} update
                 '''
             }
         }
