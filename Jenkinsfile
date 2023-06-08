@@ -51,16 +51,16 @@ pipeline {
                 script {
                     withEnv([
                         "SNOWFLAKE_ACCOUNT=kx23846.ap-southeast-1.snowflakecomputing.com",
-                        "USERNAME=mark",
-                        "PASSWORD=Mark6789*"
+                        "USERNAME='mark'",
+                        "PASSWORD='Mark6789*'"
                     ]) { 
                         sh '''
                             liquibase \
                                 --classpath=/opt/liquibase/snowflake-jdbc.jar \
                                 --driver=net.snowflake.client.jdbc.SnowflakeDriver \
                                 --url=jdbc:snowflake://$SNOWFLAKE_ACCOUNT/?db=DEVOPS_DB&schema=DEVOPS_SCHEMA \
-                                --username=$USERNAME \
-                                --password=$PASSWORD \
+                                --username="$USERNAME" \
+                                --password="$PASSWORD" \
                                 --changeLogFile=/functions-liquibase/master.xml \
                                 update
                         '''
