@@ -6,10 +6,9 @@
                       http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.10.xsd">
 
   <changeSet author="Nishant" id="create-demo-database">
-    <createDatabase
-      catalogName="demodbSF"  <!-- Replace with the desired catalog name -->
-      databaseName="demo"
-    />
+    <sql>
+      CREATE DATABASE IF NOT EXISTS demo;
+    </sql>
   </changeSet>
 
 </databaseChangeLog>
