@@ -64,13 +64,15 @@ pipeline {
                                 --changeLogFile=/db/aiml/master.xml \
                                 update
                         '''
+                    }
                 }
             }
         }
-    }
+
         post {
             always {
                 cleanWs()
             }
         }
     }
+}
