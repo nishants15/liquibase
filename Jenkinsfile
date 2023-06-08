@@ -15,6 +15,24 @@ pipeline {
             }
         }
         
+        stage('Select Database') {
+            steps {
+                sh '''
+                    # Set Liquibase environment variables
+                    export SNOWFLAKE_ACCOUNT=${SNOWFLAKE_ACCOUNT}
+                    export USERNAME=${USERNAME}
+                    export PASSWORD=${PASSWORD}
+                    
+                    # Select the database
+                    liquibase --url="jdbc:snowflake://${SNOWFLAKE_ACCOUNT}/?db=${DATABASE_NAME}" \
+                              --username=${USERNAME} \
+                              --password=${PASSWORD} \
+                              --log-level=info \
+                              updateSQL
+                '''
+            }
+        }
+        
         stage('Liquibase') {
             steps {
                 sh '''
@@ -25,7 +43,7 @@ pipeline {
                     
                     # Run Liquibase commands
                     cd functions-liquibase
-                    liquibase --changeLogFile=functions-liquibase/master.xml \
+                    liquibase --changeLogFile=master.xml \
                               --url="jdbc:snowflake://${SNOWFLAKE_ACCOUNT}/?db=${DATABASE_NAME}" \
                               --username=${USERNAME} \
                               --password=${PASSWORD} \
