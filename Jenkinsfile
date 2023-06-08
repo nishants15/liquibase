@@ -5,6 +5,7 @@ pipeline {
         SNOWFLAKE_ACCOUNT = "kx23846.ap-southeast-1.snowflakecomputing.com"
         USERNAME = "mark"
         PASSWORD = "Mark6789*"
+        DATABASE_NAME = "demo"
     }
     
     stages {
@@ -24,7 +25,7 @@ pipeline {
                     
                     # Run Liquibase commands
                     cd functions-liquibase
-                    liquibase --changeLogFile=master.xml --url="jdbc:snowflake://${SNOWFLAKE_ACCOUNT}/" --username=${USERNAME} --password=${PASSWORD} update
+                    liquibase --changeLogFile=master.xml --url="jdbc:snowflake://${SNOWFLAKE_ACCOUNT}/?db=${DATABASE_NAME}" --username=${USERNAME} --password=${PASSWORD} update
                 '''
             }
         }

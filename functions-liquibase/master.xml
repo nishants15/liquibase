@@ -12,4 +12,7 @@
   <!-- <include file="function/function.xml" /> -->
   <!-- <include file="stage/stage.xml" /> -->
 
+  <!-- Include the following line to create the "demo" database -->
+  <include file="database/database.xml" />
+
 </databaseChangeLog>
