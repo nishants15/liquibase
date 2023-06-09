@@ -5,7 +5,7 @@ pipeline {
         SNOWFLAKE_ACCOUNT = "kx23846.ap-southeast-1.snowflakecomputing.com"
         USERNAME = "mark"
         PASSWORD = "Mark6789*"
-        SNOWSQL_PATH = "/home/ec2-user/snowsql" // Update this line with the correct SnowSQL path
+        SNOWSQL_PATH = "/home/ec2-user/bin/snowsql" // Update this line with the correct SnowSQL path
     }
     
     stages {
@@ -35,7 +35,7 @@ pipeline {
                     cd functions-liquibase
 
                     echo 'USE DATABASE demo;' > select_database.sql
-                    snowsql -q 'USE DATABASE demo;'
+                    ${SNOWSQL_PATH} -q 'USE DATABASE demo;'
                     """
                 }
             }
