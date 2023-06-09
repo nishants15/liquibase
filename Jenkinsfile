@@ -5,7 +5,6 @@ pipeline {
         SNOWFLAKE_ACCOUNT = "kx23846.ap-southeast-1.snowflakecomputing.com"
         USERNAME = "mark"
         PASSWORD = "Mark6789*"
-        SNOWSQL_PATH = "/root/bin/snowsql" // Add this line to set the SnowSQL path
     }
     
     stages {
@@ -22,14 +21,13 @@ pipeline {
                     export SNOWFLAKE_ACCOUNT=${SNOWFLAKE_ACCOUNT}
                     export USERNAME=${USERNAME}
                     export PASSWORD=${PASSWORD}
-                    export PATH=${SNOWSQL_PATH}:$PATH // Add this line to include the SnowSQL path in the system PATH
                     
                     # Run Liquibase commands
                     cd functions-liquibase
                     
                     # Select the database
                     echo "USE DATABASE demo;" > select_database.sql
-                    snowsql -a ${SNOWFLAKE_ACCOUNT} -u ${USERNAME} -p ${PASSWORD} -f select_database.sql
+                    ${WORKSPACE}/snowsql -a ${SNOWFLAKE_ACCOUNT} -u ${USERNAME} -p ${PASSWORD} -f select_database.sql
                     
                     # Run Liquibase update
                     liquibase --changeLogFile=master.xml --url="jdbc:snowflake://${SNOWFLAKE_ACCOUNT}/?db=demo" --username=${USERNAME} --password=${PASSWORD} update
