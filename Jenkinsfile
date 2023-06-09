@@ -15,15 +15,15 @@ pipeline {
             }
         }
         
-        stage('Liquibase') {
-            steps {
-                script {
-                    sh """
-                    cd functions-liquibase
+    stage('Liquibase') {
+        steps {
+            script {
+                sh """
+                cd functions-liquibase
 
-                    echo 'USE DATABASE demo;' > select_database.sql
-                    sudo /home/ec2-user/bin/snowsql -q 'USE DATABASE demo;'
-                    """
-                }
+                echo 'USE DATABASE demo;' > select_database.sql
+                sudo /home/ec2-user/bin/snowsql -q 'USE DATABASE demo;'
+                """
             }
         }
+    }
