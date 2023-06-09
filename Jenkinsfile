@@ -27,7 +27,17 @@ pipeline {
                     
                     # Select the database
                     echo "USE DATABASE demo;" > select_database.sql
-                    ~/bin/snowsql -a ${SNOWFLAKE_ACCOUNT} -u ${USERNAME} -p ${PASSWORD} -f select_database.sql
+                    
+                    # Check if SnowSQL exists in /root/bin/
+                    if [ -f "/root/bin/snowsql" ]; then
+                        /root/bin/snowsql -a ${SNOWFLAKE_ACCOUNT} -u ${USERNAME} -p ${PASSWORD} -f select_database.sql
+                    # Check if SnowSQL exists in ~/bin/
+                    elif [ -f "~/bin/snowsql" ]; then
+                        ~/bin/snowsql -a ${SNOWFLAKE_ACCOUNT} -u ${USERNAME} -p ${PASSWORD} -f select_database.sql
+                    else
+                        echo "SnowSQL executable not found in expected locations."
+                        exit 1
+                    fi
                     
                     # Run Liquibase update
                     liquibase --changeLogFile=master.xml --url="jdbc:snowflake://${SNOWFLAKE_ACCOUNT}/?db=demo" --username=${USERNAME} --password=${PASSWORD} update
