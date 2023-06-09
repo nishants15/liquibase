@@ -18,16 +18,21 @@ pipeline {
         stage('Liquibase') {
             steps {
                    sh '''
+                        # Set Liquibase environment variables
+                        export SNOWFLAKE_ACCOUNT=${SNOWFLAKE_ACCOUNT}
+                        export USERNAME=${USERNAME}
+                        export PASSWORD=${PASSWORD}
+                        
                         # Run Liquibase commands
                         cd functions-liquibase
                         
                         # Select the database
                         echo "USE DATABASE demo;" > select_database.sql
-                        /root/bin/snowsql -a ${SNOWFLAKE_ACCOUNT} -u ${USERNAME} -p ${PASSWORD} -f select_database.sql
+                        /home/ec2-user/snowsql -a ${SNOWFLAKE_ACCOUNT} -u ${USERNAME} -p ${PASSWORD} -f select_database.sql
                         
                         # Run Liquibase update
                         liquibase --changeLogFile=master.xml --url="jdbc:snowflake://${SNOWFLAKE_ACCOUNT}/?db=demo" --username=${USERNAME} --password=${PASSWORD} update
-                        '''
+                    '''
             }
         }
     }
