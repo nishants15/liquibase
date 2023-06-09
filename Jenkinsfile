@@ -33,10 +33,9 @@ pipeline {
                     // Run SnowSQL commands
                     sh """
                     cd functions-liquibase
-                    
+
                     echo 'USE DATABASE demo;' > select_database.sql
                     snowsql -q 'USE DATABASE demo;'
-                    snowsql -q 'CREATE SCHEMA option;'
                     """
                 }
             }
