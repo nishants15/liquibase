@@ -15,29 +15,19 @@ pipeline {
             }
         }
         
-        stage('Liquibase') {
-            steps {
-                script {
-                    // Set SnowSQL environment variables
-                    env.PATH = "${env.PATH}:${SNOWSQL_PATH}"
-                    env.SNOWSQL_CONFIG = "${WORKSPACE}/.snowsql/config"
-                    
-                    // Write SnowSQL config file
-                    writeFile file: env.SNOWSQL_CONFIG, text: """
-                    [connections]
-                    accountname = ${SNOWFLAKE_ACCOUNT}
-                    username = ${USERNAME}
-                    password = ${PASSWORD}
-                    """
-                    
-                    // Run SnowSQL commands
-                    sh """
-                    cd functions-liquibase
+       stage('Liquibase') {
+    steps {
+        script {
+            sh """
+            cd functions-liquibase
 
-                    echo 'USE DATABASE demo;' > select_database.sql
-                    ${SNOWSQL_PATH} -q 'USE DATABASE demo;'
-                    """
-                }
+            echo 'USE DATABASE demo;' > select_database.sql
+            sudo /home/ec2-user/bin/snowsql -q 'USE DATABASE demo;'
+            """
+        }
+    }
+}
+
             }
         }
     }
