@@ -13,6 +13,12 @@ pipeline {
                 checkout([$class: 'GitSCM', branches: [[name: 'develop']], userRemoteConfigs: [[url: 'https://github.com/nishants15/liquibase.git']]])
             }
         }
+
+        stage('Verify SnowSQL') {
+            steps {
+                sh 'ls /root/bin/snowsql'
+            }
+        }
         
         stage('Deploy Snowflake Database') {
             steps {
