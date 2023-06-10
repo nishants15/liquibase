@@ -5,7 +5,7 @@ pipeline {
         SNOWFLAKE_ACCOUNT = 'kx23846.ap-southeast-1.snowflakecomputing.com'
         SNOWFLAKE_USER = 'mark'
         SNOWFLAKE_PWD = 'Mark6789*'
-        SNOWSQL_PATH = '/root/bin/snowsql' // Specify the full path to snowsql executable
+        SNOWSQL_PATH = '/root/bin/snowsql'
     }
     
     stages {
@@ -17,7 +17,9 @@ pipeline {
         
         stage('Deploy Snowflake Database') {
             steps {
-                sh "${SNOWSQL_PATH} -a ${SNOWFLAKE_ACCOUNT} -u ${SNOWFLAKE_USER} -p ${SNOWFLAKE_PWD} -f database/database.sql"
+                withCredentials([string(credentialsId: 'snowflake-password', variable: 'SNOWFLAKE_PWD')]) {
+                    sh "${SNOWSQL_PATH} -a ${SNOWFLAKE_ACCOUNT} -u ${SNOWFLAKE_USER} -p $SNOWFLAKE_PWD -f database/database.sql"
+                }
             }
         }
         
