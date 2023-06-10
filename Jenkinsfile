@@ -5,7 +5,7 @@ pipeline {
         SNOWFLAKE_ACCOUNT = "kx23846.ap-southeast-1.snowflakecomputing.com"
         USERNAME = "mark"
         PASSWORD = "Mark6789*"
-        SNOWSQL_PATH = "/home/ec2-user/snowsql" // Update this line with the correct SnowSQL path
+        SNOWSQL_PATH = "/root/bin/snowsql" // Update this line with the correct SnowSQL path
     }
     
     stages {
