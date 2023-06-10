@@ -4,6 +4,7 @@ pipeline {
         SNOWFLAKE_ACCOUNT = "kx23846.ap-southeast-1.snowflakecomputing.com"
         USERNAME = "mark"
         PASSWORD = "Mark6789*"
+        
     }
     stages {
         stage('Checkout') {
