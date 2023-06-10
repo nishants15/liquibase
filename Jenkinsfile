@@ -1,43 +1,54 @@
 pipeline {
     agent any
-    
+
     environment {
-        SNOWFLAKE_ACCOUNT = "kx23846.ap-southeast-1.snowflakecomputing.com"
-        USERNAME = "mark"
-        PASSWORD = "Mark6789*"
-        SNOWSQL_PATH = "/root/bin/snowsql" // Update this line with the correct SnowSQL path
+        LIQUIBASE_VERSION = '4.12.0'
+        SNOWFLAKE_JDBC_VERSION = '3.15.1'
+        SNOWFLAKE_ACCOUNT = 'kx23846.ap-southeast-1.snowflakecomputing.com'
+        SNOWFLAKE_USER = 'mark'
+        SNOWFLAKE_PWD = 'Mark6789*'
     }
-    
+
     stages {
-        stage('Checkout') {
+        stage('Install Liquibase') {
             steps {
-                git branch: 'develop', credentialsId: 'GH-credentials', url: 'https://github.com/nishants15/liquibase.git'
+                sh '''
+                    # Define variables for the download URLs
+                    def LIQUIBASE_URL = "https://github.com/liquibase/liquibase/releases/download/v${LIQUIBASE_VERSION}/liquibase-${LIQUIBASE_VERSION}.zip"
+                    def SNOWFLAKE_JDBC_URL = "https://repo1.maven.org/maven2/net/snowflake/snowflake-jdbc/${SNOWFLAKE_JDBC_VERSION}/snowflake-jdbc-${SNOWFLAKE_JDBC_VERSION}.jar"
+
+                    // Create a directory for Liquibase and Snowflake JDBC driver
+                    sh 'mkdir -p /opt/liquibase'
+
+                    // Download and extract Liquibase
+                    sh "curl -L $LIQUIBASE_URL -o /tmp/liquibase.zip"
+                    sh "unzip -o /tmp/liquibase.zip -d /opt/liquibase"
+                    sh "rm /tmp/liquibase.zip"
+
+                    // Download the Snowflake JDBC driver
+                    sh "curl -L $SNOWFLAKE_JDBC_URL -o /opt/liquibase/snowflake-jdbc.jar"
+
+                    // Create a symlink for the Liquibase binary
+                    sh "ln -sf /opt/liquibase/liquibase /usr/local/bin/liquibase"
+
+                    // Verify the installation
+                    sh 'liquibase --version'
+                '''
             }
         }
-        
-        stage('Liquibase') {
-            steps {
-                script {
-                    // Set SnowSQL environment variables
-                    env.PATH = "${env.PATH}:${SNOWSQL_PATH}"
-                    env.SNOWSQL_CONFIG = "${WORKSPACE}/.snowsql/config"
-                    
-                    // Write SnowSQL config file
-                    writeFile file: env.SNOWSQL_CONFIG, text: """
-                    [connections]
-                    accountname = ${SNOWFLAKE_ACCOUNT}
-                    username = ${USERNAME}
-                    password = ${PASSWORD}
-                    rolename = accountadmin
-                    """
-                    
-                    // Run SnowSQL commands
-                    sh """
-                    cd functions-liquibase
 
-                    ${SNOWSQL_PATH} -q 'CREATE DATABASE IF NOT EXISTS demo;'
-                    """
-                }
+        stage('Run Liquibase') {
+            steps {
+                sh '''
+                    liquibase \
+                        --classpath=/opt/liquibase/snowflake-jdbc.jar \
+                        --driver=net.snowflake.client.jdbc.SnowflakeDriver \
+                        --url=jdbc:snowflake://$SNOWFLAKE_ACCOUNT/?db=demo&schema=public \
+                        --username=$SNOWFLAKE_USER \
+                        --password=$SNOWFLAKE_PWD \
+                        --changeLogFile=functions-liquibase/master.xml \
+                    update
+                '''
             }
         }
     }
