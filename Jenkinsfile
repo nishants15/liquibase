@@ -4,7 +4,7 @@ pipeline {
         SNOWFLAKE_ACCOUNT = "kx23846.ap-southeast-1.snowflakecomputing.com"
         USERNAME = "mark"
         PASSWORD = "Mark6789*"
-        
+
     }
     stages {
         stage('Checkout') {
@@ -14,7 +14,7 @@ pipeline {
         }
         stage('Liquibase') {
             steps {
-                sh 'liquibase --changeLogFile=db.master.xml --url=jdbc:snowflake://${SNOWFLAKE_ACCOUNT}/demo --username=${USERNAME} --password=${PASSWORD} update'
+                sh 'liquibase --changeLogFile=db.master.xml --url=jdbc:postgresql://localhost:5432/demo --username=${USERNAME} --password=${PASSWORD} update'
             }
         }
     }
