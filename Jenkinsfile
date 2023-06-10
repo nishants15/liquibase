@@ -5,6 +5,7 @@ pipeline {
         SNOWFLAKE_ACCOUNT = 'kx23846.ap-southeast-1.snowflakecomputing.com'
         SNOWFLAKE_USER = 'mark'
         SNOWFLAKE_PWD = 'Mark6789*'
+        SNOWSQL_PATH = '/root/bin/snowsql' // Specify the full path to snowsql executable
     }
     
     stages {
@@ -13,16 +14,10 @@ pipeline {
                 checkout([$class: 'GitSCM', branches: [[name: 'develop']], userRemoteConfigs: [[url: 'https://github.com/nishants15/liquibase.git']]])
             }
         }
-
-        stage('Verify SnowSQL') {
-            steps {
-                sh 'ls /root/bin/snowsql'
-            }
-        }
         
         stage('Deploy Snowflake Database') {
             steps {
-                sh "snowsql -a ${SNOWFLAKE_ACCOUNT} -u ${SNOWFLAKE_USER} -p ${SNOWFLAKE_PWD} -f database/database.sql"
+                sh "${SNOWSQL_PATH} -a ${SNOWFLAKE_ACCOUNT} -u ${SNOWFLAKE_USER} -p ${SNOWFLAKE_PWD} -f database/database.sql"
             }
         }
         
