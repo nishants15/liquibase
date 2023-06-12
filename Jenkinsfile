@@ -17,14 +17,12 @@ pipeline {
 
         stage('Build and Deploy') {
             steps {
-                // Build your Snowflake Docker image using the Dockerfile
-                sh 'docker build -t my-snowflake-image .'
-                
-                // Run Liquibase update within the Docker container
+                sh 'docker build -t my-snowflake-image .' // Build your Snowflake Docker image using the Dockerfile
+
                 sh 'docker run -e SNOWFLAKE_ACCOUNT=$SNOWFLAKE_ACCOUNT ' +
-                   '-e SNOWFLAKE_USER=$SNOWFLAKE_USER ' +
-                   '-e SNOWFLAKE_PWD=$SNOWFLAKE_PWD ' +
-                   'my-snowflake-image /bin/bash -c "liquibase update"'
+                '-e SNOWFLAKE_USER=$SNOWFLAKE_USER ' +
+                '-e SNOWFLAKE_PWD=$SNOWFLAKE_PWD ' +
+                'my-snowflake-image /bin/bash -c "liquibase --logLevel=debug update"'
             }
         }
     }
