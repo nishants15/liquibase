@@ -9,6 +9,7 @@ pipeline {
         GITHUB_REPO = 'https://github.com/nishants15/liquibase.git'
         GITHUB_BRANCH = 'develop'
         CHANGELOG_DIRECTORY = 'changelogs'  // Update this to the appropriate directory where your changelog files are located
+        LIQUIBASE_JAR_PATH = "${env.WORKSPACE}/liquibase.jar"
     }
     
     stages {
@@ -16,7 +17,7 @@ pipeline {
             steps {
                 script {
                     // Download Liquibase JAR
-                    sh "curl -Ls https://github.com/liquibase/liquibase/releases/${env.LIQUIBASE_VERSION}/download/liquibase-core-${env.LIQUIBASE_VERSION}.jar -o liquibase.jar"
+                    sh "curl -Ls https://github.com/liquibase/liquibase/releases/${env.LIQUIBASE_VERSION}/download/liquibase-core-${env.LIQUIBASE_VERSION}.jar -o ${env.LIQUIBASE_JAR_PATH}"
                 }
             }
         }
@@ -43,7 +44,7 @@ pipeline {
                     // Change to the changelog directory
                     dir("${env.GITHUB_REPO}/${env.CHANGELOG_DIRECTORY}") {
                         // Execute Liquibase commands
-                        sh "java -jar ${env.WORKSPACE}/liquibase.jar --changeLogFile=database.xml --url=jdbc:snowflake://${env.SNOWFLAKE_ACCOUNT}/ --username=${env.SNOWFLAKE_USER} --password=${env.SNOWFLAKE_PWD} update"
+                        sh "java -jar ${env.LIQUIBASE_JAR_PATH} --changeLogFile=database.xml --url=jdbc:snowflake://${env.SNOWFLAKE_ACCOUNT}/ --username=${env.SNOWFLAKE_USER} --password=${env.SNOWFLAKE_PWD} update"
                         // Add more Liquibase commands here
                     }
                 }
