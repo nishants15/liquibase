@@ -17,10 +17,6 @@ pipeline {
                 script {
                     // Download Liquibase JAR
                     sh "curl -Ls https://github.com/liquibase/liquibase/releases/${env.LIQUIBASE_VERSION}/download/liquibase-core-${env.LIQUIBASE_VERSION}.jar -o liquibase.jar"
-                    
-                    // Add Liquibase to PATH
-                    sh "echo 'export PATH=\$PATH:${env.WORKSPACE}' >> ~/.bashrc"
-                    sh "source ~/.bashrc"
                 }
             }
         }
@@ -31,7 +27,6 @@ pipeline {
                 sh "echo 'export SNOWFLAKE_ACCOUNT=${env.SNOWFLAKE_ACCOUNT}' >> ~/.bashrc"
                 sh "echo 'export SNOWFLAKE_USER=${env.SNOWFLAKE_USER}' >> ~/.bashrc"
                 sh "echo 'export SNOWFLAKE_PWD=${env.SNOWFLAKE_PWD}' >> ~/.bashrc"
-                sh "source ~/.bashrc"
             }
         }
         
