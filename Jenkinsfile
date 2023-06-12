@@ -22,6 +22,9 @@ pipeline {
                 sh "curl -Ls ${LIQUIBASE_URL} -o liquibase.zip"
                 sh "unzip -q liquibase.zip -d ${LIQUIBASE_DIR}"
                 sh "curl -Ls ${SNOWFLAKE_JDBC_URL} -o ${LIQUIBASE_DIR}/lib/snowflake-jdbc.jar"
+                
+                // Set LIQUIBASE_HOME environment variable
+                sh "echo 'export LIQUIBASE_HOME=${LIQUIBASE_DIR}' >> ~/.bashrc"
             }
         }
 
@@ -52,7 +55,7 @@ pipeline {
             steps {
                 dir("${LIQUIBASE_DIR}/${CHANGELOG_DIRECTORY}") {
                     // Execute Liquibase commands
-                    sh "java -jar ${LIQUIBASE_DIR}/liquibase.jar --changeLogFile=database.xml --url=jdbc:snowflake://${SNOWFLAKE_ACCOUNT}/ --username=${SNOWFLAKE_USER} --password=${SNOWFLAKE_PWD} update"
+                    sh "java -jar ${LIQUIBASE_DIR}/liquibase.jar --changeLogFile=master.xml --url=jdbc:snowflake://${SNOWFLAKE_ACCOUNT}/ --username=${SNOWFLAKE_USER} --password=${SNOWFLAKE_PWD} update"
                     // Add more Liquibase commands here
                 }
             }
