@@ -13,6 +13,7 @@ pipeline {
         GITHUB_BRANCH = 'develop'
         CHANGELOG_DIRECTORY = 'changelogs'
         LIQUIBASE_DIR = "${env.WORKSPACE}/liquibase"
+        LIQUIBASE_HOME = "${LIQUIBASE_DIR}"
     }
 
     stages {
