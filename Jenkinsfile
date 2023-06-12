@@ -18,17 +18,21 @@ pipeline {
         SNOWFLAKE_JDBC_PATH = "${LIQUIBASE_DIR}/lib/snowflake-jdbc.jar"
     }
 
-    stage('Install Dependencies') {
+    stages {
+        stage('Install Dependencies') {
             steps {
                 // Download Liquibase and Snowflake JDBC driver
                 sh "curl -Ls ${LIQUIBASE_URL} -o ${LIQUIBASE_DIR}/liquibase.zip"
-                sh "jar xf ${LIQUIBASE_DIR}/liquibase.zip -C ${LIQUIBASE_DIR}"
+                dir(LIQUIBASE_DIR) {
+                    sh "unzip -q liquibase.zip"
+                }
                 sh "curl -Ls ${SNOWFLAKE_JDBC_URL} -o ${SNOWFLAKE_JDBC_PATH}"
                 
                 // Set the execute permission for Liquibase
                 sh "chmod +x ${LIQUIBASE_JAR_PATH}"
             }
         }
+        
         stage('Configure Snowflake') {
             steps {
                 // Set Snowflake environment variables
