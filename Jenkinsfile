@@ -56,6 +56,14 @@ pipeline {
             }
         }
 
+        stage('Download Liquibase') {
+            steps {
+                sh "rm -f liquibase.zip"
+                sh "wget -q https://github.com/liquibase/liquibase/releases/download/v4.12.0/liquibase-4.12.0.zip -O liquibase.zip"
+                sh "unzip -q liquibase.zip -d /var/lib/jenkins/workspace/liquibase-pipe_develop/liquibase"
+            }
+        }
+
         stage('Run Liquibase Commands') {
             steps {
                 script {
