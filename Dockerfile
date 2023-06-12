@@ -20,4 +20,7 @@ RUN mkdir -p /opt/liquibase/lib/ && \
 RUN curl -L -o liquibase-jdbc.jar https://repo1.maven.org/maven2/org/liquibase/liquibase-core/4.5.0/liquibase-core-4.5.0.jar && \
     mv liquibase-jdbc.jar /opt/liquibase/lib/
 
+# Update picocli dependency version
+RUN sed -i 's/picocli.version=.*$/picocli.version=4.6.1/' /opt/liquibase/liquibase
+
 USER jenkins
