@@ -32,7 +32,7 @@ pipeline {
                 sh "chmod +x ${LIQUIBASE_JAR_PATH}"
             }
         }
-        
+
         stage('Configure Snowflake') {
             steps {
                 // Set Snowflake environment variables
@@ -58,6 +58,10 @@ pipeline {
 
         stage('Run Liquibase Commands') {
             steps {
+                script {
+                    // Disable rate limit check for GitHub API
+                    env.DISABLE_GITHUB_RATE_LIMIT_CHECK = "true"
+                }
                 dir("${LIQUIBASE_DIR}/${CHANGELOG_DIRECTORY}") {
                     // Execute Liquibase commands
                     sh "java -jar ${LIQUIBASE_DIR}/liquibase.jar --changeLogFile=master.xml --url=jdbc:snowflake://${SNOWFLAKE_ACCOUNT}/ --username=${SNOWFLAKE_USER} --password=${SNOWFLAKE_PWD} update"
