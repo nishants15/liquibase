@@ -15,13 +15,11 @@ pipeline {
         stage('Install Liquibase') {
             steps {
                 script {
-                    // Install Liquibase
-                    sh "curl -Ls https://github.com/liquibase/liquibase/releases/${env.LIQUIBASE_VERSION}/download/liquibase-${env.LIQUIBASE_VERSION}.tar.gz -o liquibase.tar.gz"
-                    sh "tar xf liquibase.tar.gz"
-                    sh "rm liquibase.tar.gz"
+                    // Download Liquibase JAR
+                    sh "curl -Ls https://github.com/liquibase/liquibase/releases/${env.LIQUIBASE_VERSION}/download/liquibase-core-${env.LIQUIBASE_VERSION}.jar -o liquibase.jar"
                     
                     // Add Liquibase to PATH
-                    sh "echo 'export PATH=\$PATH:${env.WORKSPACE}/liquibase' >> ~/.bashrc"
+                    sh "echo 'export PATH=\$PATH:${env.WORKSPACE}' >> ~/.bashrc"
                     sh "source ~/.bashrc"
                 }
             }
@@ -50,7 +48,7 @@ pipeline {
                     // Change to the changelog directory
                     dir("${env.GITHUB_REPO}/${env.CHANGELOG_DIRECTORY}") {
                         // Execute Liquibase commands
-                        sh "liquibase --changeLogFile=database.xml --url=jdbc:snowflake://${env.SNOWFLAKE_ACCOUNT}/ --username=${env.SNOWFLAKE_USER} --password=${env.SNOWFLAKE_PWD} update"
+                        sh "java -jar ${env.WORKSPACE}/liquibase.jar --changeLogFile=database.xml --url=jdbc:snowflake://${env.SNOWFLAKE_ACCOUNT}/ --username=${env.SNOWFLAKE_USER} --password=${env.SNOWFLAKE_PWD} update"
                         // Add more Liquibase commands here
                     }
                 }
