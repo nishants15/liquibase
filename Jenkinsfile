@@ -30,7 +30,42 @@ pipeline {
                 sh "chmod +x ${LIQUIBASE_JAR_PATH}"
             }
         }
-        
-        // Rest of the stages remain the same
+
+        stage('Configure Snowflake') {
+            steps {
+                // Set Snowflake environment variables
+                sh "echo 'export SNOWFLAKE_ACCOUNT=${SNOWFLAKE_ACCOUNT}' >> ~/.bashrc"
+                sh "echo 'export SNOWFLAKE_USER=${SNOWFLAKE_USER}' >> ~/.bashrc"
+                sh "echo 'export SNOWFLAKE_PWD=${SNOWFLAKE_PWD}' >> ~/.bashrc"
+            }
+        }
+
+        stage('Clone GitHub Repository') {
+            steps {
+                script {
+                    // Check if the directory already exists
+                    if (!fileExists(LIQUIBASE_DIR)) {
+                        // Clone the GitHub repository
+                        sh "git clone ${GITHUB_REPO} ${LIQUIBASE_DIR}"
+                    } else {
+                        echo "Skipping cloning step: Directory already exists"
+                    }
+                }
+            }
+        }
+
+        stage('Run Liquibase Commands') {
+            steps {
+                dir("${LIQUIBASE_DIR}/${CHANGELOG_DIRECTORY}") {
+                    // Execute Liquibase commands
+                    sh "java -jar ${LIQUIBASE_DIR}/liquibase.jar --changeLogFile=master.xml --url=jdbc:snowflake://${SNOWFLAKE_ACCOUNT}/ --username=${SNOWFLAKE_USER} --password=${SNOWFLAKE_PWD} update"
+                    // Add more Liquibase commands here
+                }
+            }
+        }
     }
+}
+
+def fileExists(String path) {
+    return new File(path).exists()
 }
