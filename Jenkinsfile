@@ -1,31 +1,33 @@
 pipeline {
-    agent any
+    agent {
+        docker {
+            image 'my-jenkins-image' // Replace with your Docker image name
+            args '-v /var/run/docker.sock:/var/run/docker.sock' // Mount Docker socket for Docker commands
+        }
+    }
     
     environment {
         SNOWFLAKE_ACCOUNT = 'kx23846.ap-southeast-1.snowflakecomputing.com'
         SNOWFLAKE_USER = 'mark'
         SNOWFLAKE_PWD = 'Mark6789*'
-        SNOWSQL_PATH = '/root/bin/snowsql'
     }
     
     stages {
         stage('Checkout') {
             steps {
-                checkout([$class: 'GitSCM', branches: [[name: 'develop']], userRemoteConfigs: [[url: 'https://github.com/nishants15/liquibase.git']]])
+                checkout([$class: 'GitSCM', branches: [[name: '*/develop']], 
+                          userRemoteConfigs: [[url: 'https://github.com/nishants15/liquibase.git']]])
             }
         }
         
-        stage('Deploy Snowflake Database') {
+        stage('Build and Deploy') {
             steps {
-                withCredentials([string(credentialsId: 'snowflake-password', variable: 'SNOWFLAKE_PWD')]) {
-                    sh "${SNOWSQL_PATH} -a ${SNOWFLAKE_ACCOUNT} -u ${SNOWFLAKE_USER} -p $SNOWFLAKE_PWD -f database/database.sql"
-                }
-            }
-        }
-        
-        stage('Run Liquibase') {
-            steps {
-                sh "liquibase --changeLogFile=master.xml --url=jdbc:snowflake://${SNOWFLAKE_ACCOUNT}/demo -username=${SNOWFLAKE_USER} -password=${SNOWFLAKE_PWD} update"
+                sh 'docker build -t my-snowflake-image .' // Build your Snowflake Docker image using the Dockerfile
+                
+                sh 'docker run -e SNOWFLAKE_ACCOUNT=$SNOWFLAKE_ACCOUNT ' +
+                   '-e SNOWFLAKE_USER=$SNOWFLAKE_USER ' +
+                   '-e SNOWFLAKE_PWD=$SNOWFLAKE_PWD ' +
+                   'my-snowflake-image /bin/bash -c "liquibase update"'
             }
         }
     }
