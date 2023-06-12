@@ -20,7 +20,7 @@ pipeline {
             steps {
                 // Download Liquibase and Snowflake JDBC driver
                 sh "curl -Ls ${LIQUIBASE_URL} -o liquibase.zip"
-                sh "unzip -q liquibase.zip -d ${LIQUIBASE_DIR}"
+                sh "unzip -o liquibase.zip -d ${LIQUIBASE_DIR}"
                 sh "curl -Ls ${SNOWFLAKE_JDBC_URL} -o ${LIQUIBASE_DIR}/lib/snowflake-jdbc.jar"
             }
         }
