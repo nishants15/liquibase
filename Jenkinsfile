@@ -1,28 +1,59 @@
 pipeline {
     agent any
-
+    
     environment {
+        LIQUIBASE_VERSION = 'latest'  // Set to 'latest' to install the latest version of Liquibase
         SNOWFLAKE_ACCOUNT = 'kx23846.ap-southeast-1.snowflakecomputing.com'
         SNOWFLAKE_USER = 'mark'
         SNOWFLAKE_PWD = 'Mark6789*'
+        GITHUB_REPO = 'https://github.com/nishants15/liquibase.git'
+        GITHUB_BRANCH = 'develop'
+        CHANGELOG_DIRECTORY = 'changelogs'  // Update this to the appropriate directory where your changelog files are located
     }
-
+    
     stages {
-        stage('Checkout') {
+        stage('Install Liquibase') {
             steps {
-                // Checkout your GitHub repository and specify the 'develop' branch
-                git branch: 'develop', url: 'https://github.com/nishants15/liquibase.git'
+                script {
+                    // Install Liquibase
+                    sh "curl -Ls https://github.com/liquibase/liquibase/releases/${env.LIQUIBASE_VERSION}/download/liquibase-${env.LIQUIBASE_VERSION}.tar.gz -o liquibase.tar.gz"
+                    sh "tar xf liquibase.tar.gz"
+                    sh "rm liquibase.tar.gz"
+                    
+                    // Add Liquibase to PATH
+                    sh "echo 'export PATH=\$PATH:${env.WORKSPACE}/liquibase' >> ~/.bashrc"
+                    sh "source ~/.bashrc"
+                }
             }
         }
-
-        stage('Build and Deploy') {
+        
+        stage('Configure Snowflake') {
             steps {
-                sh 'docker build -t my-snowflake-image .' // Build your Snowflake Docker image using the Dockerfile
-
-                sh 'docker run -e SNOWFLAKE_ACCOUNT=$SNOWFLAKE_ACCOUNT ' +
-                '-e SNOWFLAKE_USER=$SNOWFLAKE_USER ' +
-                '-e SNOWFLAKE_PWD=$SNOWFLAKE_PWD ' +
-                'my-snowflake-image /bin/bash -c "liquibase --logLevel=debug update"'
+                // Set Snowflake environment variables
+                sh "echo 'export SNOWFLAKE_ACCOUNT=${env.SNOWFLAKE_ACCOUNT}' >> ~/.bashrc"
+                sh "echo 'export SNOWFLAKE_USER=${env.SNOWFLAKE_USER}' >> ~/.bashrc"
+                sh "echo 'export SNOWFLAKE_PWD=${env.SNOWFLAKE_PWD}' >> ~/.bashrc"
+                sh "source ~/.bashrc"
+            }
+        }
+        
+        stage('Clone GitHub Repository') {
+            steps {
+                // Clone the GitHub repository
+                sh "git clone ${env.GITHUB_REPO}"
+            }
+        }
+        
+        stage('Run Liquibase Commands') {
+            steps {
+                dir("${env.WORKSPACE}") {
+                    // Change to the changelog directory
+                    dir("${env.GITHUB_REPO}/${env.CHANGELOG_DIRECTORY}") {
+                        // Execute Liquibase commands
+                        sh "liquibase --changeLogFile=database.xml --url=jdbc:snowflake://${env.SNOWFLAKE_ACCOUNT}/ --username=${env.SNOWFLAKE_USER} --password=${env.SNOWFLAKE_PWD} update"
+                        // Add more Liquibase commands here
+                    }
+                }
             }
         }
     }
