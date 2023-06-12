@@ -2,25 +2,16 @@ pipeline {
     agent any
 
     environment {
-        LIQUIBASE_VERSION = '4.5.0'
         SNOWFLAKE_ACCOUNT = 'kx23846.ap-southeast-1.snowflakecomputing.com'
         SNOWFLAKE_USER = 'mark'
         SNOWFLAKE_PWD = 'Mark6789*'
         GITHUB_REPO = 'https://github.com/nishants15/liquibase.git'
         GITHUB_BRANCH = 'develop'
         CHANGELOG_DIRECTORY = 'changelogs'
-        LIQUIBASE_JAR_PATH = "${env.WORKSPACE}/liquibase.jar"
+        LIQUIBASE_JAR_PATH = "/mnt/c/Users/nishant.sharma_appli/downloads/liquibase.jar"
     }
 
     stages {
-        stage('Install Liquibase') {
-            steps {
-                script {
-                    sh "curl -Ls https://github.com/liquibase/liquibase/releases/latest/download/liquibase-core-${env.LIQUIBASE_VERSION}.jar -o ${env.LIQUIBASE_JAR_PATH}"
-                }
-            }
-        }
-
         stage('Configure Snowflake') {
             steps {
                 sh "echo 'export SNOWFLAKE_ACCOUNT=${env.SNOWFLAKE_ACCOUNT}' >> ~/.bashrc"
