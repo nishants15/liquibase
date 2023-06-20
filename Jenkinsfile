@@ -4,8 +4,8 @@ pipeline {
     environment {
         SNOWSQL_VERSION = "1.2.27"
         LIQUIBASE_VERSION = "4.12.0"
-        SNOWSQL_PATH = "/bin/snowsql"
-        LIQUIBASE_PATH = "/usr/local/bin/liquibase"
+        SNOWSQL_PATH = "/home/ec2-user/bin/snowsql"
+        LIQUIBASE_PATH = "/home/ec2-user/bin/liquibase"
         SNOWFLAKE_CONNECTION = "my_connection"
     }
     
