@@ -1,49 +1,28 @@
 pipeline {
-    agent any
-    
-    environment {
-        SNOWSQL_VERSION = "1.2.27"
-        LIQUIBASE_VERSION = "4.12.0"
-        SNOWSQL_PATH = "/home/ec2-user/bin/snowsql"
-        LIQUIBASE_PATH = "/home/ec2-user/bin/liquibase"
-        SNOWFLAKE_CONNECTION = "my_connection"
+  agent any
+  environment {
+    AWS_ACCESS_KEY_ID = env.AWS_ACCESS_KEY_ID
+    AWS_SECRET_ACCESS_KEY = env.AWS_SECRET_ACCESS_KEY
+  }
+  stages {
+    stage('Connect to Snowflake') {
+      steps {
+        // Execute the Snowflake command-line client to establish a connection
+        sh 'sudo -u ec2-user snowsql -c my_connection'
+      }
     }
-    
-    stages {
-        stage('Checkout') {
-            steps {
-                // Clone the GitHub repository
-                git branch: 'develop', credentialsId: 'GH-credentials', url: 'https://github.com/nishants15/liquibase.git'
-            }
-        }
+    stage('Transfer Data to Snowflake') {
+      steps {
+        // Use AWS CLI commands to copy data from S3 to local directory
+        sh "aws configure set aws_access_key_id ${AWS_ACCESS_KEY_ID}"
+        sh "aws configure set aws_secret_access_key ${AWS_SECRET_ACCESS_KEY}"
+        sh 'aws s3 cp s3://snowflakeinput11/campaign /tmp/data.csv'
         
-        stage('Run Liquibase Commands') {
-            steps {
-                dir('functions-liquibase') {
-                    script {
-                        def connections = [
-                            my_connection: [
-                                accountname: 'itb89569.us-east-1',
-                                username: 'Mark',
-                                dbname: 'dev_convertr',
-                                schemaname: 'stage',
-                                warehousename: 'compute_wh',
-                                password: 'Mark12345'
-                            ]
-                        ]
-                        
-                        sh """
-                        sudo -u ec2-user ${SNOWSQL_PATH} -c my_connection -f ${LIQUIBASE_PATH}/liquibase \
-                        --changeLogFile=master.xml \
-                        --url=jdbc:snowflake://${connections.my_connection.accountname}/${connections.my_connection.dbname}?warehouse=${connections.my_connection.warehousename}&schema=${connections.my_connection.schemaname} \
-                        --username=${connections.my_connection.username} \
-                        --password=${connections.my_connection.password} \
-                        update
-                        """
-
-                    }
-                }
-            }
-        }
+        // Execute Snowflake command to load data from the local file to Snowflake table
+        sh 'sudo -u ec2-user snowsql -c my_connection -q "COPY INTO stg_campaign1 FROM @s3_stage/file.csv;"'
+      }
     }
+    // Add more stages for your CI/CD process
+  }
 }
+
