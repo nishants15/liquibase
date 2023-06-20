@@ -4,7 +4,7 @@ pipeline {
     environment {
         SNOWSQL_VERSION = "1.2.27"
         LIQUIBASE_VERSION = "4.12.0"
-        SNOWSQL_PATH = "~/bin/snowsql"
+        SNOWSQL_PATH = "/bin/snowsql"
         LIQUIBASE_PATH = "/usr/local/bin/liquibase"
         SNOWFLAKE_CONNECTION = "my_connection"
     }
@@ -28,11 +28,19 @@ pipeline {
                                 dbname: 'dev_convertr',
                                 schemaname: 'stage',
                                 warehousename: 'compute_wh',
-                                password: 'your_password_here'
+                                password: 'Mark12345'
                             ]
                         ]
                         
-                        sh "${SNOWSQL_PATH} -c ${SNOWFLAKE_CONNECTION} -f ${LIQUIBASE_PATH}/liquibase --changeLogFile=master.xml --url=jdbc:snowflake://${connections.my_connection.accountname}/${connections.my_connection.dbname}?warehouse=${connections.my_connection.warehousename}&schema=${connections.my_connection.schemaname} --username=${connections.my_connection.username} --password=${connections.my_connection.password} update"
+                        sh """
+                            ${SNOWSQL_PATH} -c ${SNOWFLAKE_CONNECTION} -f ${LIQUIBASE_PATH}/liquibase \
+                            --changeLogFile=master.xml \
+                            --url=jdbc:snowflake://${connections.my_connection.accountname}/${connections.my_connection.dbname}?warehouse=${connections.my_connection.warehousename}&schema=${connections.my_connection.schemaname} \
+                            --username=${connections.my_connection.username} \
+                            --password=${connections.my_connection.password} \
+                            update
+                            """
+
                     }
                 }
             }
