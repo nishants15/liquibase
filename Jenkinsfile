@@ -1,85 +1,44 @@
 pipeline {
     agent any
-
+    
     environment {
-        LIQUIBASE_VERSION = '4.12.0'
-        SNOWFLAKE_JDBC_VERSION = '3.15.1'
-        LIQUIBASE_URL = "https://github.com/liquibase/liquibase/releases/download/v${LIQUIBASE_VERSION}/liquibase-${LIQUIBASE_VERSION}.zip"
-        SNOWFLAKE_JDBC_URL = "https://repo1.maven.org/maven2/net/snowflake/snowflake-jdbc/${SNOWFLAKE_JDBC_VERSION}/snowflake-jdbc-${SNOWFLAKE_JDBC_VERSION}.jar"
-        SNOWFLAKE_ACCOUNT = 'kx23846.ap-southeast-1.snowflakecomputing.com'
-        SNOWFLAKE_USER = 'mark'
-        SNOWFLAKE_PWD = 'Mark6789*'
-        GITHUB_REPO = 'https://github.com/nishants15/liquibase.git'
-        GITHUB_BRANCH = 'develop'
-        CHANGELOG_DIRECTORY = 'changelogs'
-        LIQUIBASE_DIR = "${env.WORKSPACE}/liquibase"
-        LIQUIBASE_HOME = "${LIQUIBASE_DIR}"
-        LIQUIBASE_JAR_PATH = "${LIQUIBASE_DIR}/liquibase.jar"
-        SNOWFLAKE_JDBC_PATH = "${LIQUIBASE_DIR}/lib/snowflake-jdbc.jar"
+        SNOWSQL_VERSION = "1.2.27"
+        LIQUIBASE_VERSION = "4.12.0"
+        SNOWSQL_PATH = "~/bin/snowsql"
+        LIQUIBASE_PATH = "/usr/local/bin/liquibase"
+        SNOWFLAKE_CONNECTION = "my_connection"
     }
 
     stages {
-        stage('Install Dependencies') {
+        stage('Checkout') {
             steps {
-                // Download Liquibase and Snowflake JDBC driver
-                sh "curl -Ls ${LIQUIBASE_URL} -o ${LIQUIBASE_DIR}/liquibase.zip"
-                dir(LIQUIBASE_DIR) {
-                    sh "unzip -q liquibase.zip"
-                }
-                sh "curl -Ls ${SNOWFLAKE_JDBC_URL} -o ${SNOWFLAKE_JDBC_PATH}"
-                
-                // Set the execute permission for Liquibase
-                sh "chmod +x ${LIQUIBASE_JAR_PATH}"
+                // Clone the GitHub repository
+                git branch: 'develop', credentialsId: 'GH-credentials', url: 'https://github.com/nishants15/liquibase.git'
             }
         }
 
-        stage('Configure Snowflake') {
-            steps {
-                // Set Snowflake environment variables
-                sh "echo 'export SNOWFLAKE_ACCOUNT=${SNOWFLAKE_ACCOUNT}' >> ~/.bashrc"
-                sh "echo 'export SNOWFLAKE_USER=${SNOWFLAKE_USER}' >> ~/.bashrc"
-                sh "echo 'export SNOWFLAKE_PWD=${SNOWFLAKE_PWD}' >> ~/.bashrc"
-            }
-        }
-
-        stage('Clone GitHub Repository') {
+        stage('Install SnowSQL') {
             steps {
                 script {
-                    // Check if the directory already exists
-                    if (!fileExists(LIQUIBASE_DIR)) {
-                        // Clone the GitHub repository
-                        sh "git clone ${GITHUB_REPO} ${LIQUIBASE_DIR}"
-                    } else {
-                        echo "Skipping cloning step: Directory already exists"
-                    }
+                    sh "which snowsql || curl -o ${SNOWSQL_PATH} https://sfc-repo.snowflakecomputing.com/snowsql/bootstrap/${SNOWSQL_VERSION}/darwin_x86_64/snowsql.gz && gunzip ${SNOWSQL_PATH} && chmod +x ${SNOWSQL_PATH}"
                 }
             }
         }
-
-        stage('Download Liquibase') {
+        
+        stage('Install Liquibase') {
             steps {
-                sh "rm -f liquibase.zip"
-                sh "wget -q https://github.com/liquibase/liquibase/releases/download/v4.12.0/liquibase-4.12.0.zip -O liquibase.zip"
-                sh "unzip -q liquibase.zip -d /var/lib/jenkins/workspace/liquibase-pipe_develop/liquibase"
+                script {
+                    sh "which liquibase || curl -o ${LIQUIBASE_PATH} https://github.com/liquibase/liquibase/releases/download/v${LIQUIBASE_VERSION}/liquibase-${LIQUIBASE_VERSION}.tar.gz && tar -xzf ${LIQUIBASE_PATH} && chmod +x ${LIQUIBASE_PATH}"
+                }
             }
         }
-
+        
         stage('Run Liquibase Commands') {
             steps {
                 script {
-                    // Disable rate limit check for GitHub API
-                    env.DISABLE_GITHUB_RATE_LIMIT_CHECK = "true"
-                }
-                dir("${LIQUIBASE_DIR}/${CHANGELOG_DIRECTORY}") {
-                    // Execute Liquibase commands
-                    sh "java -jar ${LIQUIBASE_DIR}/liquibase.jar --changeLogFile=master.xml --url=jdbc:snowflake://${SNOWFLAKE_ACCOUNT}/ --username=${SNOWFLAKE_USER} --password=${SNOWFLAKE_PWD} update"
-                    // Add more Liquibase commands here
+                    sh "sudo -u ec2-user ${SNOWSQL_PATH} -c ${SNOWFLAKE_CONNECTION} -f ${LIQUIBASE_PATH}/liquibase --changeLogFile=master.xml --url=jdbc:snowflake://${connections.my_connection.accountname}/${connections.my_connection.dbname}?warehouse=${connections.my_connection.warehousename}&schema=${connections.my_connection.schemaname} --username=${connections.my_connection.username} --password=${connections.my_connection.password} update"
                 }
             }
         }
     }
-}
-
-def fileExists(String path) {
-    return new File(path).exists()
 }
