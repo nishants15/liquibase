@@ -33,7 +33,7 @@ pipeline {
                         ]
                         
                         sh """
-                            ${SNOWSQL_PATH} -c ${SNOWFLAKE_CONNECTION} -f ${LIQUIBASE_PATH}/liquibase \
+                            sudo -u ec2-user snowsql - ${SNOWSQL_PATH} -c ${SNOWFLAKE_CONNECTION} -f ${LIQUIBASE_PATH}/liquibase \
                             --changeLogFile=master.xml \
                             --url=jdbc:snowflake://${connections.my_connection.accountname}/${connections.my_connection.dbname}?warehouse=${connections.my_connection.warehousename}&schema=${connections.my_connection.schemaname} \
                             --username=${connections.my_connection.username} \
