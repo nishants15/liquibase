@@ -21,7 +21,18 @@ pipeline {
             steps {
                 dir('functions-liquibase') {
                     script {
-                        sh "sudo -u ec2-user ${SNOWSQL_PATH} -c ${SNOWFLAKE_CONNECTION} -f ${LIQUIBASE_PATH}/liquibase --changeLogFile=master.xml --url=jdbc:snowflake://${connections.my_connection.accountname}/${connections.my_connection.dbname}?warehouse=${connections.my_connection.warehousename}&schema=${connections.my_connection.schemaname} --username=${connections.my_connection.username} --password=${connections.my_connection.password} update"
+                        def connections = [
+                            my_connection: [
+                                accountname: 'itb89569.us-east-1',
+                                username: 'Mark',
+                                dbname: 'dev_convertr',
+                                schemaname: 'stage',
+                                warehousename: 'compute_wh',
+                                password: 'your_password_here'
+                            ]
+                        ]
+                        
+                        sh "${SNOWSQL_PATH} -c ${SNOWFLAKE_CONNECTION} -f ${LIQUIBASE_PATH}/liquibase --changeLogFile=master.xml --url=jdbc:snowflake://${connections.my_connection.accountname}/${connections.my_connection.dbname}?warehouse=${connections.my_connection.warehousename}&schema=${connections.my_connection.schemaname} --username=${connections.my_connection.username} --password=${connections.my_connection.password} update"
                     }
                 }
             }
