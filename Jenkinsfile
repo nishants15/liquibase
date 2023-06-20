@@ -17,30 +17,6 @@ pipeline {
             }
         }
         
-        stage('Install SnowSQL') {
-            steps {
-                script {
-                    sh """
-                    if [ ! -f ${SNOWSQL_PATH} ]; then
-                        curl -o ${SNOWSQL_PATH} https://sfc-repo.snowflakecomputing.com/snowsql/bootstrap/${SNOWSQL_VERSION}/darwin_x86_64/snowsql.gz && gunzip ${SNOWSQL_PATH} && chmod +x ${SNOWSQL_PATH}
-                    fi
-                    """
-                }
-            }
-        }
-        
-        stage('Install Liquibase') {
-            steps {
-                script {
-                    sh """
-                    if [ ! -f ${LIQUIBASE_PATH} ]; then
-                        curl -o ${LIQUIBASE_PATH} https://github.com/liquibase/liquibase/releases/download/v${LIQUIBASE_VERSION}/liquibase-${LIQUIBASE_VERSION}.tar.gz && tar -xzf ${LIQUIBASE_PATH} && chmod +x ${LIQUIBASE_PATH}
-                    fi
-                    """
-                }
-            }
-        }
-        
         stage('Run Liquibase Commands') {
             steps {
                 dir('functions-liquibase') {
